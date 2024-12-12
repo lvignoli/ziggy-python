@@ -9,5 +9,9 @@ wheels/
 # Virtual environments
 .venv
 
+# Local pin of python version
+.python-version
+
+# Dev folders
 scratchpad
 ziggy-documents
