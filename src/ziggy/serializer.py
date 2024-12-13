@@ -300,7 +300,10 @@ if __name__ == "__main__":
     r = Serializer(
         indent="\t",
         with_dataclass_name=True,
-        tagged_literals={Action: "user_action", datetime: "timestamp"},
+        serialization_functions={
+            Action: AsTaggedLiteralFunc(lambda x: x.value, tag="user_action"),
+            datetime: AsTaggedLiteralFunc(lambda x: str(x), tag="timestamp"),
+        },
     ).serialize(
         [
             1,
