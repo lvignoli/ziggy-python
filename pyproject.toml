@@ -1,6 +1,6 @@
 [project]
 name = "ziggy-python"
-version = "0.1.0"
+version = "0.0.1"
 description = "Python support for the Ziggy data serialization language"
 authors = [{ name = "Louis Vignoli", email = "louis.vignoli@gmail.com" }]
 readme = "README.md"
