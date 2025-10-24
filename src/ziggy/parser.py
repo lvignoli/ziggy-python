@@ -65,6 +65,42 @@ def parse(
     elif isinstance(s, bytearray):
         s = bytes(s)
     tree = _ts_ziggy_parser.parse(s)
+
+    # Find all error nodes in the tree
+    error_nodes = []
+
+    def find_errors(node):
+        if node.type == "ERROR":
+            error_nodes.append(node)
+        for child in node.children:
+            find_errors(child)
+
+    find_errors(tree.root_node)
+
+    if error_nodes:
+        error_messages = []
+        # Split source into lines for error display
+        source_lines = s.decode("utf-8").splitlines()
+
+        for error_node in error_nodes:
+            start_point = error_node.start_point
+            line_num = start_point.row + 1  # Convert 0-based to 1-based
+            column_num = start_point.column + 1  # Convert 0-based to 1-based
+
+            error_msg = f"Error at line {line_num}, column {column_num}:"
+
+            # Add the source line if it exists
+            if 0 <= start_point.row < len(source_lines):
+                source_line = source_lines[start_point.row]
+                error_msg += f"\n  {source_line}"
+                # Add caret indicator pointing to the error column
+                pointer = " " * (start_point.column + 2) + "^"
+                error_msg += f"\n{pointer}"
+
+            error_messages.append(error_msg)
+        error_msg = "Parse error:\n" + "\n".join(error_messages)
+        raise ValueError(error_msg)
+
     interpreter = Parser(literals=literals, structs=structs)
     v = interpreter.interpret(tree.root_node)
     return v

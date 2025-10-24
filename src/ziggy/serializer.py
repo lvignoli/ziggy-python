@@ -1,9 +1,7 @@
 from __future__ import annotations
 
-import enum
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, fields, is_dataclass
-from datetime import datetime
 from typing import (
     Callable,
     Final,
@@ -284,37 +282,3 @@ def serialize_integer(x: int) -> str:
 
 def serialize_float(x: float) -> str:
     return str(x)
-
-
-if __name__ == "__main__":
-
-    @dataclass
-    class Data:
-        foo: list
-        bar: float
-
-    class Action(enum.StrEnum):
-        Send = enum.auto()
-        Clear = enum.auto()
-
-    r = Serializer(
-        indent="\t",
-        with_dataclass_name=True,
-        serialization_functions={
-            Action: AsTaggedLiteralFunc(lambda x: x.value, tag="user_action"),
-            datetime: AsTaggedLiteralFunc(lambda x: str(x), tag="timestamp"),
-        },
-    ).serialize(
-        [
-            1,
-            2,
-            {
-                "command": Action.Send,
-                "datetime": datetime.fromisoformat("2024-11-27T22:32:25"),
-            },
-            {"a": 'OK"you" lucky \n\tboy\'s', "b": [True, False, None, 1]},
-            Data(foo=[True, "A", 1], bar=3.14),
-        ],
-        depth=0,
-    )
-    print(r)
