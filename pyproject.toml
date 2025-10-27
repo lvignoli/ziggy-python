@@ -20,7 +20,12 @@ build-backend = "hatchling.build"
 packages = ["src/ziggy"]
 
 [dependency-groups]
-dev = ["ipykernel>=6.29.5", "pytest>=8.3.3", "ruff>=0.8.0"]
+dev = [
+    "ipykernel>=6.29.5",
+    "pytest>=8.3.3",
+    "ruff>=0.8.0",
+    {include-group = "doc"},
+]
 doc = [
     "pdoc>=15.0.4",
 ]
