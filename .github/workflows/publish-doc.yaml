@@ -1,0 +1,66 @@
+name: ziggy-python
+
+# build the documentation whenever there are new commits on main
+on:
+  push:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+# security: restrict permissions for CI jobs.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress
+# and latest queued. However, do NOT cancel in-progress runs as we want to allow these
+# production deployments to complete.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  # Build the documentation and upload the static HTML files as an artifact.
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version-file: ".python-version"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: 0.9.5
+
+      - name: Install the project
+        run: uv sync --locked --all-extras --dev
+
+      - run: uv run pytest
+
+      - run: uv run pdoc src/ziggy -o docs/
+
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: docs/
+
+  # Deploy the artifact to GitHub pages.
+  # This is a separate job so that only actions/deploy-pages has the necessary permissions.
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
