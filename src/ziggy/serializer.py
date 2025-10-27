@@ -122,13 +122,13 @@ def serialize(
         ... class Message:
         ...     id: int
         ...     content: str
-        >>> ziggy.serialize(Message(id=1, content="Hello, World!"), with_dataclass_name = False)
+        >>> ziggy.serialize(Message(id=1, content="Hello, World!"), serializer=Serializer(with_dataclass_name=False))
         '{.id = 1, .content = "Hello, World!"}'
 
         >>> ziggy.serialize(Message(id=1, content="Hello, World!"))
         'Message {.id = 1, .content = "Hello, World!"}'
 
-        >>> s = ziggy.serialize(Message(id=1, content="Hello, World!"), indent="    ")
+        >>> s = ziggy.serialize(Message(id=1, content="Hello, World!"), serializer=Serializer(indent="    "))
         >>> print(s)
         Message {
             .id = 1,

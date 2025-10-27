@@ -46,7 +46,7 @@ def parse(
         A Python object corresponding to the input Ziggy document.
 
         >>> import ziggy
-        >>> ziggy.parse('[1, 3.14, "pi", {"a": 0, "b": 1}])')
+        >>> ziggy.parse('[1, 3.14, "pi", {"a": 0, "b": 1}]')
         [1, 3.14, 'pi', {'a': 0, 'b': 1}]
 
         >>> ziggy.parse('.title = "Ruy Blas", .author = "Victor Hugo"')
