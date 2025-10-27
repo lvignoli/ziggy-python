@@ -31,11 +31,15 @@ def annotated_by(
 
 
 class SerializeFunction(ABC):
+    """A helper function to define how types get serialized."""
+
     @abstractmethod
     def __call__(self, x: object) -> str: ...
 
 
 class AsQuotedStringFunc(SerializeFunction):
+    """Serialize objects as quoted string."""
+
     def __init__(self, f: Callable[..., str]):
         self.f = f
 
@@ -45,6 +49,8 @@ class AsQuotedStringFunc(SerializeFunction):
 
 
 class AsMultilineStringFunc(SerializeFunction):
+    """Serialize objects as multilines string."""
+
     def __init__(self, f: Callable[..., str]):
         self.f = f
 
@@ -54,6 +60,8 @@ class AsMultilineStringFunc(SerializeFunction):
 
 
 class AsTaggedLiteralFunc(SerializeFunction):
+    """Serialize objects as tagged literals."""
+
     def __init__(self, f: Callable[..., str], *, tag: str):
         self.f = f
         self.tag = tag
