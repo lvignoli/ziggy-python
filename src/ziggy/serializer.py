@@ -1,17 +1,22 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, fields, is_dataclass
-from typing import (
-    Callable,
-    Final,
-    Iterable,
-    Mapping,
-    Sequence,
-    TypeVar,
-    get_args,
-    get_type_hints,
-)
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from typing import (
+        Callable,
+        Final,
+        TypeVar,
+        final,
+        get_args,
+        get_type_hints,
+        override,
+    )
+
+    from _typeshed import DataclassInstance
 
 T = TypeVar("T")
 
@@ -43,6 +48,7 @@ class AsQuotedStringFunc(SerializeFunction):
     def __init__(self, f: Callable[..., str]):
         self.f = f
 
+    @override
     def __call__(self, x: object) -> str:
         s = self.f(x)
         return serialize_quoted_string(s)
@@ -54,6 +60,7 @@ class AsMultilineStringFunc(SerializeFunction):
     def __init__(self, f: Callable[..., str]):
         self.f = f
 
+    @override
     def __call__(self, x: object) -> str:
         s = self.f(x)
         return serialize_multiline_string(s)
@@ -66,6 +73,7 @@ class AsTaggedLiteralFunc(SerializeFunction):
         self.f = f
         self.tag = tag
 
+    @override
     def __call__(self, x: object) -> str:
         s = self.f(x)
         return serialize_tagged_literal(s, tag=self.tag)
@@ -93,7 +101,7 @@ class TaggedLiteral:
     tag: str
 
 
-class ZiggySerializer[T](ABC):
+class ZiggySerializer(ABC):
     """Abstract class to define the Ziggy string representation of an object.
 
     Any subclass of ZiggySerializer is serialized as a quoted string, as returned by the `ziggy_serialize`
@@ -162,6 +170,7 @@ def enclose_indent_comma_sep(
     return left + "\n" + body + "\n" + depth * indent + right
 
 
+@final
 class Serializer:
     def __init__(
         self,
@@ -191,8 +200,6 @@ class Serializer:
                     return serialize_multiline_string(s.value)
                 case TaggedLiteral():
                     return serialize_tagged_literal(s.value, tag=s.tag)
-                case _:
-                    raise ValueError()
 
         # Otherwise, we do default serialization of the object according to its runtime type.
         # Beginning with the literal case. Stateless functions are enough.
@@ -211,46 +218,43 @@ class Serializer:
                 return serialize_integer(v)
             case float():
                 return serialize_float(v)
+            case Sequence():
+                return self.serialize_sequence(v, depth)
+            case Mapping():
+                return self.serialize_mapping(v, depth)
+            case _ if is_dataclass(v):
+                return self.serialize_dataclass(v, depth)
+            case _:
+                raise ValueError(f"unsupported type: {type(v)}")
 
         # Container case. We track the depth for indentation purpose.
-        if isinstance(v, Sequence):
-            return self.serialize_sequence(v, depth)
-        elif isinstance(v, Mapping):
-            return self.serialize_mapping(v, depth)
-        elif is_dataclass(v):
-            return self.serialize_dataclass(v, depth)
 
         raise ValueError("unsupported type", type(v))
 
-    def serialize_sequence(self, seq: Sequence, depth: int) -> str:
+    def serialize_sequence(self, seq: Sequence[object], depth: int) -> str:
         vals = [self.serialize(x, depth + 1) for x in seq]
         return enclose_indent_comma_sep("[", vals, "]", self.indent, depth)
 
-    def serialize_mapping(self, d: Mapping, depth: int) -> str:
-        vals = []
+    def serialize_mapping(self, d: Mapping[Any, object], depth: int) -> str:
+        vals: list[str] = []
         for k, v in d.items():
             vals.append(f'"{k:s}": {self.serialize(v, depth+1)}')
         return enclose_indent_comma_sep("{", vals, "}", self.indent, depth)
 
-    def serialize_dataclass(self, dc, depth: int) -> str:
-        if not is_dataclass(dc):
-            raise ValueError
-
+    def serialize_dataclass(self, dc: DataclassInstance, depth: int) -> str:
         # We check for annotated field.
         fields_as_tagged_literal: dict[str, TaggedLiteralAnnotation] = {}
-        for field_name, annotation, parent_type in annotated_by(
-            dc, TaggedLiteralAnnotation
-        ):
+        for field_name, annotation, _ in annotated_by(dc, TaggedLiteralAnnotation):
             fields_as_tagged_literal[field_name] = annotation
 
-        vals = []
+        vals: list[str] = []
         for f in fields(dc):
             if (annotation := fields_as_tagged_literal.get(f.name)) is not None:
                 tag = annotation.name
                 serialize_function = annotation.serialize_function
                 if serialize_function is None:
                     serialize_function = str
-                value = getattr(dc, f.name)
+                value: Callable[[], Any] = getattr(dc, f.name)
                 vals.append(f'@{tag}("{serialize_function(value)}")')
                 continue
             vals.append(f".{f.name} = {self.serialize(getattr(dc, f.name), depth+1)}")

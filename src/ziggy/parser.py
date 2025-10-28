@@ -16,7 +16,7 @@ _ts_ziggy_parser = ts.Parser(_ts_ziggy_language)
 def parse(
     s: str | bytes | bytearray,
     *,
-    literals: Mapping[str, Callable] | None = None,
+    literals: Mapping[str, Callable[[str], object]] | None = None,
     structs: Mapping[str, Callable] | None = None,
 ) -> object:
     """Deserialize `s` to a Python object.
@@ -110,11 +110,15 @@ class Parser:
     def __init__(
         self,
         *,
-        literals: Mapping[str, Callable] | None = None,
-        structs: Mapping[str, Callable] | None = None,
+        literals: Mapping[str, Callable[[str], object]] | None = None,
+        structs: Mapping[str, Callable[[], object]] | None = None,
     ):
-        self.literals: dict = dict(literals) if literals is not None else {}
-        self.structs: dict = dict(structs) if structs is not None else {}
+        self.literals: dict[str, Callable[[str], object]] = (
+            dict(literals) if literals is not None else {}
+        )
+        self.structs: dict[str, Callable[[], object]] = (
+            dict(structs) if structs is not None else {}
+        )
 
     def interpret(self, node: ts.Node | None) -> object:
         if node is None:
@@ -150,6 +154,8 @@ class Parser:
                 return self.interpret_struct(node)
             case "top_level_struct":
                 return self.interpret_struct(node)
+            case _:
+                raise ValueError(f"unsupported: {node.type}")
 
     def interpret_identifier(self, node: ts.Node) -> str:
         assert (txt := node.text) is not None
@@ -166,7 +172,7 @@ class Parser:
         return txt.decode("utf-8").strip('"')
 
     def interpret_multiline_string(self, node: ts.Node) -> str:
-        lines = []
+        lines: list[str] = []
         for c in node.named_children:
             assert c.text is not None
             line = c.text.decode("utf-8").lstrip("\\\\")
@@ -184,7 +190,7 @@ class Parser:
         return v
 
     def interpret_map(self, node: ts.Node) -> dict[str, object]:
-        map = {}
+        map: dict[str, object] = {}
         for c in node.named_children:
             key_node = c.child_by_field_name("key")
             assert key_node is not None
@@ -194,7 +200,7 @@ class Parser:
         return map
 
     def interpret_array(self, node: ts.Node) -> list[object]:
-        arr = []
+        arr: list[object] = []
         for c in node.named_children:
             x = self.interpret(c.children[-1])
             arr.append(x)

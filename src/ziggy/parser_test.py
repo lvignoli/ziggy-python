@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Any
 
 import pytest
 
@@ -148,7 +149,7 @@ class Location:
 def test_simple(
     case_name: str,
     input: str,
-    parser_options: dict,
+    parser_options: dict[str, Any],
     expected,
 ):
     actual = parse(input, **parser_options)

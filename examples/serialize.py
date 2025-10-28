@@ -7,7 +7,7 @@ import ziggy
 
 @dataclass
 class Data:
-    foo: list
+    foo: list[object]
     bar: float
 
 
