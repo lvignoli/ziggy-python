@@ -67,9 +67,9 @@ def parse(
     tree = _ts_ziggy_parser.parse(s)
 
     # Find all error nodes in the tree
-    error_nodes = []
+    error_nodes: list[ts.Node] = []
 
-    def find_errors(node):
+    def find_errors(node: ts.Node):
         if node.type == "ERROR":
             error_nodes.append(node)
         for child in node.children:
@@ -78,7 +78,7 @@ def parse(
     find_errors(tree.root_node)
 
     if error_nodes:
-        error_messages = []
+        error_messages: list[str] = []
         # Split source into lines for error display
         source_lines = s.decode("utf-8").splitlines()
 
@@ -116,9 +116,7 @@ class Parser:
         self.literals: dict[str, Callable[[str], object]] = (
             dict(literals) if literals is not None else {}
         )
-        self.structs: dict[str, Callable[[], object]] = (
-            dict(structs) if structs is not None else {}
-        )
+        self.structs: dict[str, Callable[[], object]] = dict(structs) if structs is not None else {}
 
     def interpret(self, node: ts.Node | None) -> object:
         if node is None:

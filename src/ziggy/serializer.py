@@ -3,18 +3,19 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, fields, is_dataclass
-from typing import TYPE_CHECKING, Any
+from typing import (
+    TYPE_CHECKING,
+    Callable,
+    Final,
+    TypeVar,
+    final,
+    get_args,
+    get_type_hints,
+    override,
+)
 
 if TYPE_CHECKING:
-    from typing import (
-        Callable,
-        Final,
-        TypeVar,
-        final,
-        get_args,
-        get_type_hints,
-        override,
-    )
+    from typing import Any
 
     from _typeshed import DataclassInstance
 
@@ -242,7 +243,7 @@ class Serializer:
         return enclose_indent_comma_sep("{", vals, "}", self.indent, depth)
 
     def serialize_dataclass(self, dc: DataclassInstance, depth: int) -> str:
-        # We check for annotated field.
+        # We check for annotated fields.
         fields_as_tagged_literal: dict[str, TaggedLiteralAnnotation] = {}
         for field_name, annotation, _ in annotated_by(dc, TaggedLiteralAnnotation):
             fields_as_tagged_literal[field_name] = annotation
