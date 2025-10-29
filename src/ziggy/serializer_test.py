@@ -18,29 +18,29 @@ from ziggy.serializer import (
 
 
 @dataclass
-class Book(ZiggySerializer):
+class Book:
     title: str
     author: str
 
-    def ziggy_serialize(self) -> QuotedString:
+    def _ziggy_serialize_(self) -> QuotedString:
         return QuotedString(f"{self.title}, by {self.author}")
 
 
 @dataclass
-class BookMultiline(ZiggySerializer):
+class BookMultiline:
     title: str
     author: str
 
-    def ziggy_serialize(self) -> MultilineString:
+    def _ziggy_serialize_(self) -> MultilineString:
         return MultilineString(f"{self.title}\nby {self.author}")
 
 
 @dataclass
-class BookWithTag(ZiggySerializer):
+class BookWithTag:
     title: str
     author: str
 
-    def ziggy_serialize(self) -> TaggedLiteral:
+    def _ziggy_serialize_(self) -> TaggedLiteral:
         return TaggedLiteral(value=f"{self.title}, by {self.author}", tag="book")
 
 

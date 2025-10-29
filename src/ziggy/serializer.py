@@ -12,6 +12,7 @@ from typing import (
     get_args,
     get_type_hints,
     override,
+    runtime_checkable,
 )
 
 if TYPE_CHECKING:
@@ -102,7 +103,8 @@ class TaggedLiteral:
     tag: str
 
 
-class ZiggySerializer(ABC):
+@runtime_checkable
+class ZiggySerializer(Protocol):
     """Abstract class to define the Ziggy string representation of an object.
 
     Any subclass of ZiggySerializer is serialized as a quoted string, as returned by the `ziggy_serialize`
@@ -110,7 +112,7 @@ class ZiggySerializer(ABC):
     """
 
     @abstractmethod
-    def ziggy_serialize(self) -> QuotedString | MultilineString | TaggedLiteral: ...
+    def _ziggy_serialize_(self) -> QuotedString | MultilineString | TaggedLiteral: ...
 
 
 def serialize(
@@ -193,7 +195,7 @@ class Serializer:
         # If the type encountered is a ZiggySerializer, we let it serialize itself and output the
         # required Ziggy string literal.
         if isinstance(v, ZiggySerializer):
-            s = v.ziggy_serialize()
+            s = v._ziggy_serialize_()
             match s:
                 case QuotedString():
                     return serialize_quoted_string(s.value)
