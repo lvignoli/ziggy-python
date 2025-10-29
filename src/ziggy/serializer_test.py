@@ -12,7 +12,6 @@ from ziggy.serializer import (
     QuotedString,
     Serializer,
     TaggedLiteral,
-    ZiggySerializer,
     serialize,
 )
 
@@ -69,9 +68,7 @@ def my_date_func(x: datetime) -> str:
             ],
             Serializer(
                 indent="\t",
-                serialization_functions={
-                    datetime: AsTaggedLiteralFunc(my_date_func, tag="date")
-                },
+                serialization_functions={datetime: AsTaggedLiteralFunc(my_date_func, tag="date")},
             ),
             """[
 	1,
@@ -135,9 +132,9 @@ def my_date_func(x: datetime) -> str:
             Serializer(
                 serialization_functions={
                     Book: AsQuotedStringFunc(
-                        lambda x: f"{x.title}, by {" ".join(
-                                [f'{f[0]}.' for f in x.author.split(' ')]
-                            )}"
+                        lambda x: f"{x.title}, by {
+                            ' '.join([f'{f[0]}.' for f in x.author.split(' ')])
+                        }"
                     )
                 },
             ),

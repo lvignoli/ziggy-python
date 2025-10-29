@@ -4,7 +4,8 @@ import dataclasses
 import datetime
 import pathlib
 import sys
-from typing import Callable, Mapping
+from collections.abc import Mapping
+from typing import Callable
 
 import tree_sitter as ts
 import tree_sitter_ziggy

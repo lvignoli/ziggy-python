@@ -20,14 +20,13 @@ data = """Message {
 
 
 v = ziggy.parse(data)
-print("Vanilla parsing: `Message` is parsed as a dictionnary.")
+print("Vanilla parsing:")
+print("`Message` Ziggy struct is parsed as a Python dictionnary.")
 print(v)
 print()
 
-print(
-    "Parsing with a struct declaration:\n"
-    + "`Message` is parsed as `Message` dataclass instance."
-)
+print("Parsing with a struct declaration:")
+print("`Message` Ziggy struct is parsed as a Python `Message` dataclass instance.")
 v = ziggy.parse(
     data,
     structs={"Message": Message},

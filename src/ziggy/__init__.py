@@ -13,6 +13,7 @@ from ziggy.serializer import (
     AsQuotedStringFunc,
     AsTaggedLiteralFunc,
     Serializer,
+    TaggedLiteralAnnotation,
     serialize,
 )
 
@@ -24,4 +25,5 @@ __all__ = [
     "AsMultilineStringFunc",
     "AsQuotedStringFunc",
     "AsTaggedLiteralFunc",
+    "TaggedLiteralAnnotation",
 ]

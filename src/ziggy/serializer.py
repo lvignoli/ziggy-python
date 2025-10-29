@@ -7,8 +7,8 @@ from typing import (
     TYPE_CHECKING,
     Callable,
     Final,
+    Protocol,
     TypeVar,
-    final,
     get_args,
     get_type_hints,
     override,
@@ -173,7 +173,6 @@ def enclose_indent_comma_sep(
     return left + "\n" + body + "\n" + depth * indent + right
 
 
-@final
 class Serializer:
     def __init__(
         self,
@@ -241,7 +240,7 @@ class Serializer:
     def serialize_mapping(self, d: Mapping[Any, object], depth: int) -> str:
         vals: list[str] = []
         for k, v in d.items():
-            vals.append(f'"{k:s}": {self.serialize(v, depth+1)}')
+            vals.append(f'"{k:s}": {self.serialize(v, depth + 1)}')
         return enclose_indent_comma_sep("{", vals, "}", self.indent, depth)
 
     def serialize_dataclass(self, dc: DataclassInstance, depth: int) -> str:
@@ -260,7 +259,7 @@ class Serializer:
                 value: Callable[[], Any] = getattr(dc, f.name)
                 vals.append(f'@{tag}("{serialize_function(value)}")')
                 continue
-            vals.append(f".{f.name} = {self.serialize(getattr(dc, f.name), depth+1)}")
+            vals.append(f".{f.name} = {self.serialize(getattr(dc, f.name), depth + 1)}")
 
         s = enclose_indent_comma_sep("{", vals, "}", self.indent, depth)
         if self.with_dataclass_name:
