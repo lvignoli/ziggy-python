@@ -244,21 +244,8 @@ class Serializer:
         return enclose_indent_comma_sep("{", vals, "}", self.indent, depth)
 
     def serialize_dataclass(self, dc: DataclassInstance, depth: int) -> str:
-        # We check for annotated fields.
-        fields_as_tagged_literal: dict[str, TaggedLiteralAnnotation] = {}
-        for field_name, annotation, _ in annotated_by(dc, TaggedLiteralAnnotation):
-            fields_as_tagged_literal[field_name] = annotation
-
         vals: list[str] = []
         for f in fields(dc):
-            if (annotation := fields_as_tagged_literal.get(f.name)) is not None:
-                tag = annotation.name
-                serialize_function = annotation.serialize_function
-                if serialize_function is None:
-                    serialize_function = str
-                value: Callable[[], Any] = getattr(dc, f.name)
-                vals.append(f'@{tag}("{serialize_function(value)}")')
-                continue
             vals.append(f".{f.name} = {self.serialize(getattr(dc, f.name), depth + 1)}")
 
         s = enclose_indent_comma_sep("{", vals, "}", self.indent, depth)
