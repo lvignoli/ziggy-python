@@ -18,7 +18,7 @@ def parse(
     s: str | bytes | bytearray,
     *,
     literals: Mapping[str, Callable[[str], object]] | None = None,
-    structs: Mapping[str, Callable] | None = None,
+    structs: Mapping[str, Callable[..., object]] | None = None,
 ) -> object:
     """Deserialize `s` to a Python object.
 
@@ -224,7 +224,7 @@ class Parser:
             name = name_node.text
             assert name is not None
             name = name.decode("utf-8")
-            if name is not None and name in self.structs:
+            if name in self.structs:
                 struct_constructor = self.structs[name]
                 return struct_constructor(**fields)
 
