@@ -35,14 +35,14 @@ class Location:
     [
         (
             "Nested arrays, maps, structs",
-            """[1, [2, [3, { "a": 1, "b": ["alpha", "beta"], "c": { .name = "Louis", .age = 29 } }]]]""",
+            """[1, [0b11, [0xff.abp-1, { "a": 1, "b": ["alpha", "beta"], "c": { .name = "Louis", .age = 29 } }]]]""",
             {},
             [
                 1,
                 [
-                    2,
+                    3,
                     [
-                        3,
+                        255.171e-1,
                         {
                             "a": 1,
                             "b": ["alpha", "beta"],

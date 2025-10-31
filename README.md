@@ -10,7 +10,7 @@ Ziggy schema is not supported.
 - [x] null
 - [x] bool
 - [x] integers and float in base 10
-- [ ] integers and float in base 2, 8 and 16, with scientific notation
+- [x] integers and float in base 2, 8 and 16, with scientific notation
 - [x] quoted and multiline bytes literals
 - [x] tagged literals
 - [ ] tagged literals with custom parser
