@@ -1,9 +1,5 @@
 from __future__ import annotations
 
-import dataclasses
-import datetime
-import pathlib
-import sys
 from collections.abc import Mapping
 from typing import Callable
 
@@ -229,25 +225,3 @@ class Parser:
                 return struct_constructor(**fields)
 
         return fields
-
-
-if __name__ == "__main__":
-    language = ts.Language(tree_sitter_ziggy.language())
-    parser = ts.Parser(language)
-    data = pathlib.Path(sys.argv[1]).read_bytes()
-
-    @dataclasses.dataclass
-    class Message:
-        sender: str
-        content: str
-        timestamp: int
-
-    v = parse(data)
-    print(v)
-
-    v = parse(
-        data,
-        structs={"Message": Message},
-        literals={"date": datetime.datetime.fromisoformat},
-    )
-    print(v)
