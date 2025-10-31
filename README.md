@@ -30,7 +30,7 @@ Ziggy schema is not supported.
 - [x] str, bytes, byterarray
 - [x] Sequence
 - [x] Mapping
-- [ ] enum
+- [x] enum
 - [x] dataclass
 - [ ] objects satisfying ZiggySerialize protocol
 - [ ] minified ziggy documents
