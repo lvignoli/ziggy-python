@@ -3,6 +3,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, fields, is_dataclass
+from enum import Enum
 from typing import (
     TYPE_CHECKING,
     Callable,
@@ -224,6 +225,8 @@ class Serializer:
                 return self.serialize_sequence(v, depth)
             case Mapping():
                 return self.serialize_mapping(v, depth)
+            case _ if isinstance(v, Enum):
+                return self.serialize_enum_value(v, depth)
             case _ if is_dataclass(v):
                 return self.serialize_dataclass(v, depth)
             case _:
@@ -242,6 +245,9 @@ class Serializer:
         for k, v in d.items():
             vals.append(f'"{k:s}": {self.serialize(v, depth + 1)}')
         return enclose_indent_comma_sep("{", vals, "}", self.indent, depth)
+
+    def serialize_enum_value(self, v: Enum, depth: int) -> str:
+        return f'"{v.name}"'
 
     def serialize_dataclass(self, dc: DataclassInstance, depth: int) -> str:
         vals: list[str] = []
